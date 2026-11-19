@@ -1,0 +1,22 @@
+.DS_Store
+**/.DS_Store
+
+# Local dependencies and build products
+tools/ptsl-runner/node_modules/
+AutoEdit App/.build/
+AutoEdit App/build/
+AutoEdit App/dist/
+
+# Runtime state and generated app workspace
+tools/ptsl-runner/.ptsl-session.json
+tools/ptsl-runner/app-work/
+tools/ptsl-runner/exports/
+tools/ptsl-runner/reports/
+tools/ptsl-runner/phase0/assets/
+tools/ptsl-runner/phase0/reports/
+tools/ptsl-runner/scenario/recording-assets/
+tools/ptsl-runner/PTSL.desc
+tools/ptsl-runner/PTSL.command-ids.json
+
+# Avid SDK files are installed locally by each developer.
+third_party/

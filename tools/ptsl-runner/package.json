@@ -1,0 +1,29 @@
+{
+  "name": "ptsl-runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "conform:dry-run": "node src/conformDryRun.js",
+    "command-plan": "node src/buildCommandPlan.js",
+    "apply-plan": "node src/applyCommandPlan.js",
+    "crossfade:write-test": "node src/crossfadeWriteTest.js",
+    "fade:write-test": "node src/standaloneFadeWriteTest.js",
+    "export-clip-metadata": "node src/exportClipMetadata.js",
+    "export-session-info": "node src/exportSessionInfo.js",
+    "phase0:assets": "node src/generatePhase0Assets.js",
+    "phase0:probe-create": "node src/phase0ProbeCreateAudioClips.js",
+    "phase0:smoke": "node src/phase0Smoke.js",
+    "phase0:write-test": "node src/phase0WriteTest.js",
+    "edit-scenario": "node src/buildEditScenario.js",
+    "recording-scenario": "node src/buildRecordingScenario.js",
+    "parse-session-info": "node src/parseSessionInfo.js",
+    "test": "node --test",
+    "ptsl": "node src/cli.js"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.4",
+    "@grpc/proto-loader": "^0.7.15",
+    "protobufjs": "7.6.4"
+  }
+}
