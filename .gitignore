@@ -17,6 +17,7 @@ tools/ptsl-runner/phase0/reports/
 tools/ptsl-runner/scenario/recording-assets/
 tools/ptsl-runner/PTSL.desc
 tools/ptsl-runner/PTSL.command-ids.json
+tools/ptsl-runner/SDK/
 
 # Avid SDK files are installed locally by each developer.
 third_party/

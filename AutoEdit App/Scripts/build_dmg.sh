@@ -9,7 +9,6 @@ NODE_VERSION="v24.19.0"
 APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORKSPACE_ROOT="$(cd "$APP_ROOT/.." && pwd)"
 RUNNER_SOURCE="$WORKSPACE_ROOT/tools/ptsl-runner"
-PROTO_SOURCE="$WORKSPACE_ROOT/third_party/PTSL_SDK_CPP.2025.10.0.1267955/Source/PTSL.proto"
 DIST_DIR="$APP_ROOT/dist"
 APP_DIR="$DIST_DIR/$APP_NAME.app"
 RUNNER_BUNDLE="$APP_DIR/Contents/Resources/ptsl-runner"
@@ -17,7 +16,7 @@ STAGING_DIR="$DIST_DIR/dmg-root"
 CACHE_DIR="$DIST_DIR/cache"
 ICONSET_DIR="$DIST_DIR/AutoEdit.iconset"
 ICON_FILE="$DIST_DIR/AutoEdit.icns"
-DMG_PATH="$DIST_DIR/AutoEdit-$VERSION-universal-unsigned.dmg"
+DMG_PATH="$DIST_DIR/AutoEdit-$VERSION-macOS-universal.dmg"
 
 for command in swift curl tar lipo hdiutil sips iconutil npm node; do
   command -v "$command" >/dev/null || {
@@ -25,11 +24,6 @@ for command in swift curl tar lipo hdiutil sips iconutil npm node; do
     exit 1
   }
 done
-
-[[ -f "$PROTO_SOURCE" ]] || {
-  echo "Missing PTSL.proto at $PROTO_SOURCE" >&2
-  exit 1
-}
 
 rm -rf "$APP_DIR" "$STAGING_DIR" "$ICONSET_DIR" "$ICON_FILE" "$DMG_PATH"
 mkdir -p "$APP_DIR/Contents/MacOS" \
@@ -59,11 +53,6 @@ cp "$RUNNER_SOURCE"/src/*.js "$RUNNER_BUNDLE/src/"
   cd "$RUNNER_BUNDLE"
   npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 )
-protocol_generator="$RUNNER_BUNDLE/generateRuntimeProtocol.mjs"
-cp "$RUNNER_SOURCE/scripts/generateRuntimeProtocol.mjs" "$protocol_generator"
-node "$protocol_generator" "$PROTO_SOURCE" "$RUNNER_BUNDLE"
-rm "$protocol_generator"
-
 echo "Preparing universal Node.js runtime..."
 for arch in arm64 x64; do
   archive="node-$NODE_VERSION-darwin-$arch.tar.gz"
@@ -81,6 +70,7 @@ lipo -create \
 chmod 755 "$APP_DIR/Contents/Resources/node/bin/node"
 cp "$CACHE_DIR/node-$NODE_VERSION-darwin-arm64/LICENSE" \
   "$APP_DIR/Contents/Resources/Third-Party-Licenses/Node-LICENSE.txt"
+cp "$WORKSPACE_ROOT/LICENSE" "$APP_DIR/Contents/Resources/AutoEdit-LICENSE.txt"
 
 echo "Generating app icon..."
 mkdir -p "$ICONSET_DIR"
@@ -130,22 +120,28 @@ fi
 
 cp -R "$APP_DIR" "$STAGING_DIR/"
 ln -s /Applications "$STAGING_DIR/Applications"
-cat > "$STAGING_DIR/安装说明.txt" <<'INSTRUCTIONS'
-AutoEdit V0.3.9 内部测试候选版
+cat > "$STAGING_DIR/Install - 安装说明.txt" <<'INSTRUCTIONS'
+AutoEdit v0.3.9 prerelease / 测试候选版
 
-1. 将 AutoEdit V0.3.9 拖入 Applications。
-2. 第一次启动时，请在 Finder 中右键 AutoEdit V0.3.9，选择“打开”，再确认打开。
-3. 如果 macOS 仍阻止运行，请到“系统设置 > 隐私与安全性”中选择“仍要打开”。
-4. 启动支持 PTSL 的 Pro Tools，并打开需要处理的 Session。
+1. Drag AutoEdit V0.3.9 to Applications. macOS 14 or later is required.
+2. Obtain the Pro Tools Scripting SDK 2025.10 from Avid.
+   https://www.avid.com/resource-center/pro-tools-scripting-sdk
+3. Copy Source/PTSL.proto from the extracted SDK to this path. Create the folders if needed.
+   ~/Library/Application Support/AutoEdit V0.3.9/Runner/SDK/PTSL.proto
+4. Open Pro Tools and a copy of the Session you want to edit, then start AutoEdit.
 
-可与旧版 AutoEdit 共存；设置、缓存和日志独立。录音配置库共享，修改或删除配置会影响两版可见的同一份配置。
-请勿让两个版本同时向同一个 Pro Tools 工程执行。
+1. 将 AutoEdit V0.3.9 拖入“应用程序”。需要 macOS 14 或更新版本。
+2. 按照上方链接的说明，从 Avid 获取 Pro Tools Scripting SDK 2025.10。
+3. 将解压后 Source 目录中的 PTSL.proto 复制到下方路径。若文件夹不存在，请先创建。
+   ~/Library/Application Support/AutoEdit V0.3.9/Runner/SDK/PTSL.proto
+4. 启动 Pro Tools，打开要处理的工程副本，然后打开 AutoEdit。
 
-本版本未使用 Apple Developer ID 签名，也未经过 Apple 公证。
-AutoEdit 已内置运行所需的 Node.js 和 PTSL runner，不需要安装 CMake、Node.js 或 PTSL SDK。
+Node.js is bundled. This prerelease has an ad-hoc signature and is not notarized.
+If macOS blocks the first launch, open System Settings → Privacy & Security
+and choose Open Anyway for AutoEdit.
 
-本候选修复录音参考轨含淡入或 Crossfade 时的源样本偏移。
-已通过离线回归；尚未进行真实 Pro Tools 导入和听音验收。
+安装包内置 Node.js。此预发行版使用临时签名，未经 Apple 公证。
+如果 macOS 阻止首次启动，请在“系统设置 → 隐私与安全性”中为 AutoEdit 选择“仍要打开”。
 INSTRUCTIONS
 
 echo "Creating DMG..."

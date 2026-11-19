@@ -6,6 +6,7 @@ import protoLoader from "@grpc/proto-loader";
 import {
   commandIdsPath,
   descriptorPath,
+  localSdkProtoPath,
   protoPath,
   sessionFilePath
 } from "./paths.js";
@@ -15,14 +16,21 @@ const PTSL_VERSION_MINOR = 10;
 const PTSL_VERSION_REVISION = 0;
 let cachedCommandIds;
 
-function loadCommandIds() {
-  if (fs.existsSync(commandIdsPath)) {
+function resolveProtoPath() {
+  if (fs.existsSync(localSdkProtoPath)) {
+    return localSdkProtoPath;
+  }
+  if (fs.existsSync(protoPath)) {
+    return protoPath;
+  }
+  throw new Error(`Missing Avid Pro Tools Scripting SDK (2025.10). Place its PTSL.proto at ${localSdkProtoPath}.`);
+}
+
+function loadCommandIds(sourcePath) {
+  if (sourcePath === null) {
     return new Map(Object.entries(JSON.parse(fs.readFileSync(commandIdsPath, "utf8"))));
   }
-  if (!fs.existsSync(protoPath)) {
-    throw new Error(`Missing Avid Pro Tools Scripting SDK. Place its PTSL.proto at ${protoPath}.`);
-  }
-  const proto = fs.readFileSync(protoPath, "utf8");
+  const proto = fs.readFileSync(sourcePath, "utf8");
   const ids = new Map();
   const commandRegex = /^\s*(CId_)?([A-Za-z][A-Za-z0-9_]*)\s*=\s*(\d+)\s*;/gm;
   let match;
@@ -151,7 +159,9 @@ export function saveSessionId(sessionId) {
 
 export class PtslClient {
   constructor({ address = "localhost:31416", sessionId = "" } = {}) {
-    this.commandIds = cachedCommandIds ??= loadCommandIds();
+    this.descriptorFields = fs.existsSync(descriptorPath) && fs.existsSync(commandIdsPath);
+    const sourcePath = this.descriptorFields ? null : resolveProtoPath();
+    this.commandIds = cachedCommandIds ??= loadCommandIds(sourcePath);
     const loaderOptions = {
       keepCase: true,
       longs: String,
@@ -159,10 +169,9 @@ export class PtslClient {
       defaults: true,
       oneofs: true
     };
-    this.descriptorFields = fs.existsSync(descriptorPath);
     const definition = this.descriptorFields
       ? protoLoader.loadFileDescriptorSetFromBuffer(fs.readFileSync(descriptorPath), loaderOptions)
-      : protoLoader.loadSync(protoPath, loaderOptions);
+      : protoLoader.loadSync(sourcePath, loaderOptions);
     const loaded = grpc.loadPackageDefinition(definition);
     this.client = new loaded.ptsl.PTSL(address, grpc.credentials.createInsecure());
     this.sessionId = sessionId;

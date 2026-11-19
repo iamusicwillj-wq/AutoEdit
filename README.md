@@ -10,6 +10,20 @@ This version corrects source-sample alignment when the Recording Reference conta
 
 此版本修正录音参考轨含独立淡变或非对称交叉淡化时的源样本对齐。候选版已通过离线测试，仍需在实际 Pro Tools 工程中验证导入与听音。请用工程副本试用。
 
+## Install on macOS / 安装
+
+Download the universal DMG from the [v0.3.9 prerelease](https://github.com/iamusicwillj-wq/AutoEdit/releases/tag/v0.3.9) and drag AutoEdit to Applications. The app requires macOS 14 or later and includes Node.js. This prerelease is ad-hoc signed and has no Apple notarization. If macOS blocks the first launch, choose **Open Anyway** in **System Settings → Privacy & Security**.
+
+从 [v0.3.9 预发行页](https://github.com/iamusicwillj-wq/AutoEdit/releases/tag/v0.3.9) 下载通用版 DMG，将 AutoEdit 拖入“应用程序”。需要 macOS 14 或更新版本，安装包内置 Node.js。此预发行版使用临时签名，未经 Apple 公证。如果首次启动被拦截，请前往“系统设置 → 隐私与安全性”选择“仍要打开”。
+
+For Pro Tools integration, obtain the **Pro Tools Scripting SDK 2025.10** from Avid and copy `Source/PTSL.proto` to the path below. Create the folders if needed. [Avid SDK access instructions](https://www.avid.com/resource-center/pro-tools-scripting-sdk)
+
+要连接 Pro Tools，请从 Avid 获取 **Pro Tools Scripting SDK 2025.10**，将 `Source/PTSL.proto` 复制到下方路径。若文件夹不存在，请先创建。 [Avid SDK 获取说明](https://www.avid.com/resource-center/pro-tools-scripting-sdk)
+
+```text
+~/Library/Application Support/AutoEdit V0.3.9/Runner/SDK/PTSL.proto
+```
+
 ## Build and test / 构建与测试
 
 Use macOS 14 or later with Swift 6, macOS developer tools, and Node.js 24 with npm. Pro Tools integration requires a local Pro Tools installation compatible with the 2025.10 PTSL protocol and the 2025.10 Pro Tools Scripting SDK. Follow [Avid's SDK access instructions](https://www.avid.com/resource-center/pro-tools-scripting-sdk). Extract the SDK locally so the protocol file is at `third_party/PTSL_SDK_CPP.2025.10.0.1267955/Source/PTSL.proto`.
@@ -25,9 +39,9 @@ swift test --package-path 'AutoEdit App'
 "AutoEdit App/Scripts/build_app.sh"
 ```
 
-Open `AutoEdit App/build/AutoEdit V0.3.9.app` to use the workspace runner. After installing the SDK, run `"AutoEdit App/Scripts/build_dmg.sh" --app-only` to build a universal app locally under `AutoEdit App/dist/` with Node.js and the runner bundled.
+Open `AutoEdit App/build/AutoEdit V0.3.9.app` to use the workspace runner. Run `"AutoEdit App/Scripts/build_dmg.sh"` to build the universal installer under `AutoEdit App/dist/`. Use `--app-only` to build only the universal app.
 
-打开 `AutoEdit App/build/AutoEdit V0.3.9.app` 即可使用工作区中的运行器。安装 SDK 后，可执行 `"AutoEdit App/Scripts/build_dmg.sh" --app-only`，在本地 `AutoEdit App/dist/` 构建内置 Node.js 和运行器的通用版应用。
+打开 `AutoEdit App/build/AutoEdit V0.3.9.app` 即可使用工作区中的运行器。执行 `"AutoEdit App/Scripts/build_dmg.sh"` 可在 `AutoEdit App/dist/` 构建通用版安装包。使用 `--app-only` 可单独构建通用版应用。
 
 ## Workflow / 使用流程
 

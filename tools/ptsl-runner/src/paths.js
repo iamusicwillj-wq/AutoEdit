@@ -8,6 +8,7 @@ export const workspaceRoot = path.resolve(runnerRoot, "..", "..");
 export const dataRoot = process.env.AUTOEDIT_DATA_ROOT
   ? path.resolve(process.env.AUTOEDIT_DATA_ROOT)
   : runnerRoot;
+export const localSdkProtoPath = path.join(dataRoot, "SDK", "PTSL.proto");
 export const protoPath = path.join(
   workspaceRoot,
   "third_party",
